@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import errorCreator from "../utils/error.js";
 import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const signup = async (req, res, next) => {
   try {
@@ -29,17 +30,27 @@ export const signin = async (req, res, next) => {
     return;
   }
   try {
-    const foundUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (!foundUser) {
+    const matchedUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (!matchedUser) {
       res.status(404).json({ message: "User not found" });
       return;
     }
-    const isPasswordValid = await bcryptjs.compareSync(
+    const isPasswordValid = bcryptjs.compareSync(
       password,
-      foundUser.password
+      matchedUser.password
     );
     if (isPasswordValid) {
-      res.status(201).json({ message: "Succesful" });
+      const token = jwt.sign({ id: matchedUser._id }, process.env.JWT_SECRET);
+      const { _id, password, createdAt, updatedAt, __v, ...userData } =
+        matchedUser._doc;
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        })
+        .status(201)
+        .json(userData);
+      s;
       return;
     } else {
       res.status(401).json({ message: "Username of password is wrong" });
