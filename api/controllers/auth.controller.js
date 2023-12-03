@@ -23,14 +23,16 @@ export const signup = async (req, res, next) => {
 };
 
 export const signin = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { user, password } = req.body;
 
-  if (!username && !email) {
-    res.status(400).json({ message: "Username or email is required" });
+  if (!user) {
+    res.status(400).json({ message: "Username or email is required!" });
     return;
   }
   try {
-    const matchedUser = await User.findOne({ $or: [{ username }, { email }] });
+    const matchedUser = await User.findOne({
+      $or: [{ username: user }, { email: user }],
+    });
     if (!matchedUser) {
       res.status(404).json({ message: "User not found" });
       return;
@@ -43,6 +45,7 @@ export const signin = async (req, res, next) => {
       const token = jwt.sign({ id: matchedUser._id }, process.env.JWT_SECRET);
       const { _id, password, createdAt, updatedAt, __v, ...userData } =
         matchedUser._doc;
+
       res
         .cookie("access_token", token, {
           httpOnly: true,
@@ -50,10 +53,10 @@ export const signin = async (req, res, next) => {
         })
         .status(201)
         .json(userData);
-      s;
+
       return;
     } else {
-      res.status(401).json({ message: "Username of password is wrong" });
+      res.status(401).json({ message: "Incorrect credentials. Try again!" });
       return;
     }
   } catch (error) {
