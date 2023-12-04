@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
 
 import Form from "../components/Form";
@@ -29,8 +28,11 @@ const Signup = () => {
       },
       body: JSON.stringify(userData),
     });
-    const data = await response.json();
-    console.log(data);
+    setUserData({
+      username: "",
+      email: "",
+      password: "",
+    });
   };
 
   return (
@@ -38,6 +40,7 @@ const Signup = () => {
       useCase="signup"
       handleChange={handleChange}
       handleSubmit={handleSubmit}
+      userData={userData}
     />
   );
 };

@@ -23,15 +23,15 @@ export const signup = async (req, res, next) => {
 };
 
 export const signin = async (req, res, next) => {
-  const { user, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!user) {
+  if (!username) {
     res.status(400).json({ message: "Username or email is required!" });
     return;
   }
   try {
     const matchedUser = await User.findOne({
-      $or: [{ username: user }, { email: user }],
+      $or: [{ username: username }, { email: username }],
     });
     if (!matchedUser) {
       res.status(404).json({ message: "User not found" });
@@ -45,6 +45,7 @@ export const signin = async (req, res, next) => {
       const token = jwt.sign({ id: matchedUser._id }, process.env.JWT_SECRET);
       const { _id, password, createdAt, updatedAt, __v, ...userData } =
         matchedUser._doc;
+      userData.message = "Login Successful";
 
       res
         .cookie("access_token", token, {
