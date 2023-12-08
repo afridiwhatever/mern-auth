@@ -22,6 +22,51 @@ export const signup = async (req, res, next) => {
   }
 };
 
+export const google = async (req, res, next) => {
+  const { email, displayName, photoURL } = req.body;
+
+  //check if the user exists. If so, sign token and send the user back
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const { _id, password, createdAt, updatedAt, __v, ...userData } =
+        user._doc;
+      userData.message = "Login Successful";
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        })
+        .status(201)
+        .json(userData);
+      return;
+    } else {
+      //if the user doesn't exist, create it, sign token and send it back
+      const newUser = new User({
+        email,
+        displayName,
+        profilePicture: photoURL,
+        username: " ",
+      });
+      await newUser.save();
+
+      const { _id, ...userData } = newUser._doc;
+      userData.message = "Login Successful";
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      res
+        .cookie("access_token", token, {
+          httpOnly: true,
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        })
+        .status(201)
+        .json(userData);
+      return;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 export const signin = async (req, res, next) => {
   const { username, password } = req.body;
 

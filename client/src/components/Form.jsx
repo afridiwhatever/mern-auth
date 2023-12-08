@@ -3,6 +3,7 @@
 // eslint-disable react/prop-types
 
 import { Link } from "react-router-dom";
+import OAuth from "./OAuth";
 
 const Form = ({ useCase, handleChange, handleSubmit, userData, feedback }) => {
   let bottomSectionContent = (
@@ -66,9 +67,8 @@ const Form = ({ useCase, handleChange, handleSubmit, userData, feedback }) => {
             ? "Sign Up".toUpperCase()
             : "Sign In".toUpperCase()}
         </button>
-        <button className="bg-red-700 text-white rounded-lg p-3 hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed">
-          CONTINUE WITH GOOGLE
-        </button>
+        <OAuth />
+
         {bottomSectionContent}
       </form>
     </div>

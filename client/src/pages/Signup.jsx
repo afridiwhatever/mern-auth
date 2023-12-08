@@ -1,5 +1,11 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
+import {
+  signInSuccess,
+  signInFailure,
+  signInStart,
+} from "../store/slices/userSlice";
+import { useDispatch } from "react-redux";
 import Form from "../components/Form";
 
 const Signup = () => {
@@ -8,6 +14,9 @@ const Signup = () => {
     email: "",
     password: "",
   });
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -21,6 +30,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(signInStart());
     const response = await fetch("http://localhost:3000/api/auth/signup", {
       method: "POST",
       headers: {
@@ -33,6 +43,13 @@ const Signup = () => {
       email: "",
       password: "",
     });
+    const data = await response.json();
+    if (data.message === "User created") {
+      dispatch(signInSuccess(data));
+      navigate("/");
+    } else {
+      dispatch(signInFailure(data));
+    }
   };
 
   return (
