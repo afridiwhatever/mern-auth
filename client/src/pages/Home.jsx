@@ -9,7 +9,7 @@ const Home = () => {
         <h1 className="font-bold text-3xl text-slate-800 mb-4">
           Welcome to my Auth App!
         </h1>
-        {currentUser && <img src={currentUser.profilePicture} alt="" />}
+
         <section>
           <p className="text-slate-700 mb-4 ">
             This is a full-stack web application built with the MERN (MongoDB,
