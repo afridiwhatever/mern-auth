@@ -59,11 +59,12 @@ const Profile = () => {
       "Are you sure you want to delete your account?"
     );
     if (isConfirmed) {
-      const response = await fetch("http://localhost:3000/api/user/edit", {
+      const response = await fetch("/api/user/edit", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(userData),
       });
 
@@ -73,9 +74,20 @@ const Profile = () => {
         dispatch(signInSuccess());
         setTimeout(() => {
           navigate("/");
-        }),
-          100;
+        }, 100);
       }
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await fetch("/api/auth/signout");
+      dispatch(signInSuccess());
+      setTimeout(() => {
+        navigate("/");
+      }, 10);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -127,7 +139,9 @@ const Profile = () => {
           <Link onClick={handleDelete} className="text-red-700">
             Delete Account
           </Link>
-          <Link className="text-red-700">Sign Out</Link>
+          <Link onClick={handleSignOut} className="text-red-700">
+            Sign Out
+          </Link>
         </div>
       </form>
     </div>

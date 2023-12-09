@@ -21,7 +21,7 @@ const OAuth = () => {
       const { displayName, email, photoURL } = result.user;
 
       signInStart();
-      const response = await fetch("http://localhost:3000/api/auth/google", {
+      const response = await fetch("/api/auth/google", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,7 +34,7 @@ const OAuth = () => {
       });
       const data = await response.json();
 
-      if (data.message === "Login Successful") {
+      if (data.success) {
         dispatch(signInSuccess(data));
         navigate("/");
       } else {

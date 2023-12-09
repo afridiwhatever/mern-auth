@@ -6,9 +6,9 @@ export const getUsers = (req, res) => {
 };
 
 export const editUser = async (req, res) => {
+  const { username, email, password } = req.body;
+  console.log(req.headers.cookie);
   try {
-    const { username, email, password } = req.body;
-
     if (!username || !password) {
       res.json({ error: true, message: "Username or password can't be empty" });
       return;

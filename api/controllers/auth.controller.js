@@ -9,7 +9,19 @@ export const signup = async (req, res, next) => {
     const hasdedPassword = bcryptjs.hashSync(password, 10);
     const newUser = new User({ username, email, password: hasdedPassword });
     await newUser.save();
-    res.status(201).json({ message: "User created" });
+
+    const { _id, ...userData } = newUser._doc;
+    userData.success = true;
+    userData.message = "User created";
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      })
+      .status(201)
+      .json(userData);
+    return;
   } catch (error) {
     next(
       errorCreator(
@@ -32,6 +44,7 @@ export const google = async (req, res, next) => {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
       const { _id, password, createdAt, updatedAt, __v, ...userData } =
         user._doc;
+      userData.success = true;
       userData.message = "Login Successful";
       res
         .cookie("access_token", token, {
@@ -52,6 +65,7 @@ export const google = async (req, res, next) => {
       await newUser.save();
 
       const { _id, ...userData } = newUser._doc;
+      userData.success = true;
       userData.message = "Login Successful";
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
       res
@@ -65,6 +79,7 @@ export const google = async (req, res, next) => {
     }
   } catch (error) {
     console.log(error);
+    res.send("ee");
   }
 };
 export const signin = async (req, res, next) => {
@@ -99,7 +114,6 @@ export const signin = async (req, res, next) => {
         })
         .status(201)
         .json(userData);
-
       return;
     } else {
       res.status(401).json({ message: "Incorrect credentials. Try again!" });
@@ -113,4 +127,11 @@ export const signin = async (req, res, next) => {
       )
     );
   }
+};
+
+export const signout = (req, res) => {
+  res
+    .clearCookie("access_token")
+    .status(200)
+    .json({ message: "Signout success" });
 };

@@ -31,7 +31,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(signInStart());
-    const response = await fetch("http://localhost:3000/api/auth/signup", {
+    const response = await fetch("/api/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ const Signup = () => {
       password: "",
     });
     const data = await response.json();
-    if (data.message === "User created") {
+    if (data.success) {
       dispatch(signInSuccess(data));
       navigate("/");
     } else {
