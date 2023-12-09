@@ -46,7 +46,7 @@ const Form = ({ useCase, handleChange, handleSubmit, userData, feedback }) => {
 
         {useCase === "signup" && (
           <input
-            className="bg-slate-100  rounded-lg p-3"
+            className="bg-slate-100  rounded-lg p-3 "
             type="email"
             placeholder="Email"
             id="email"
