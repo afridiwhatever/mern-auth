@@ -5,8 +5,8 @@ export const getUsers = (req, res) => {
   res.json({ message: "Hi from user route" });
 };
 
-export const editUser = async (req, res) => {
-  const { username, email, password, profilePicture } = req.body;
+export const editUserDetails = async (req, res) => {
+  const { username, email, password } = req.body;
 
   try {
     if (!username || !password) {
@@ -32,9 +32,6 @@ export const editUser = async (req, res) => {
     const hashedPassword = bcryptjs.hashSync(password, 10);
     foundUser.username = username;
     foundUser.password = hashedPassword;
-    if (foundUser.profilePicture !== profilePicture) {
-      foundUser.profilePicture = profilePicture;
-    }
     await foundUser.save();
     const updatedUserData = {
       username: foundUser._doc.username,
@@ -46,6 +43,22 @@ export const editUser = async (req, res) => {
 
     res.status(201).json(updatedUserData);
     return;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const editUserImage = async (req, res) => {
+  const { email, profilePicture } = req.body;
+
+  try {
+    const foundUser = await User.findOne({ email });
+    foundUser.profilePicture = profilePicture;
+    await foundUser.save();
+    res.json({
+      success: true,
+      message: "Profile picture updated successfully",
+    });
   } catch (error) {
     console.log(error);
   }

@@ -27,6 +27,33 @@ const Profile = () => {
     password: "",
   });
 
+  const updateProfilePicture = async () => {
+    console.log("ran");
+    const response = await fetch("/api/user/edit/image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: userData.email,
+        profilePicture: userData.profilePicture,
+      }),
+    });
+    console.log({
+      email: userData.email,
+      profilePicture: userData.profilePicture,
+    });
+    const data = await response.json();
+    console.log(data);
+    if (data.success) {
+      dispatch(signInSuccess(userData));
+    }
+  };
+
+  if (userData.profilePicture !== currentUser.profilePicture) {
+    updateProfilePicture();
+  }
+
   const [image, setImage] = useState(undefined);
 
   const [imageUploadPercentage, setImageUploadPercentage] = useState(0);
@@ -76,7 +103,7 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:3000/api/user/edit", {
+    const response = await fetch("/api/user/edit", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -140,6 +167,7 @@ const Profile = () => {
   return (
     <div className="flex flex-col max-w-2xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-10">Profile</h1>
+
       <form
         onSubmit={handleSubmit}
         className="flex flex-col items-center justify-center gap-6 px-8 "
