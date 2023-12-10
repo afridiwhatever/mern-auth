@@ -9,29 +9,32 @@ export const editUserDetails = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    if (!username || !password) {
-      res.json({ error: true, message: "Username or password can't be empty" });
+    if (!username) {
+      res.json({ error: true, message: "Username can't be empty" });
       return;
     }
-
-    //check if username already exists
-    const isDuplicateUsername = await User.findOne({ username });
-
-    if (isDuplicateUsername) {
-      res.json({
-        error: true,
-        message: "username is taken",
-      });
-      return;
-    }
-
-    //find and update user credentials
 
     const foundUser = await User.findOne({ email });
 
-    const hashedPassword = bcryptjs.hashSync(password, 10);
+    if (foundUser.username !== username) {
+      const isDuplicateUsername = await User.findOne({ username });
+
+      if (isDuplicateUsername) {
+        res.json({
+          error: true,
+          message: "username is taken",
+        });
+        return;
+      }
+    }
+
     foundUser.username = username;
-    foundUser.password = hashedPassword;
+
+    if (password) {
+      const hashedPassword = bcryptjs.hashSync(password, 10);
+      foundUser.password = hashedPassword;
+    }
+
     await foundUser.save();
     const updatedUserData = {
       username: foundUser._doc.username,

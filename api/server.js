@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 dotenv.config();
 const app = express();
@@ -19,6 +20,7 @@ mongoose
 
 //middleswares
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 
 // routes
