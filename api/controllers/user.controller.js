@@ -6,8 +6,8 @@ export const getUsers = (req, res) => {
 };
 
 export const editUser = async (req, res) => {
-  const { username, email, password } = req.body;
-  console.log(req.headers.cookie);
+  const { username, email, password, profilePicture } = req.body;
+
   try {
     if (!username || !password) {
       res.json({ error: true, message: "Username or password can't be empty" });
@@ -32,6 +32,9 @@ export const editUser = async (req, res) => {
     const hashedPassword = bcryptjs.hashSync(password, 10);
     foundUser.username = username;
     foundUser.password = hashedPassword;
+    if (foundUser.profilePicture !== profilePicture) {
+      foundUser.profilePicture = profilePicture;
+    }
     await foundUser.save();
     const updatedUserData = {
       username: foundUser._doc.username,

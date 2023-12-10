@@ -1,11 +1,19 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigate } from "react-router-dom";
 import { signInSuccess, signInFailure } from "../store/slices/userSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { app } from "../utils/firebase";
 
 const Profile = () => {
+  const imageInputRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
@@ -15,8 +23,46 @@ const Profile = () => {
   const [userData, setUserData] = useState({
     username: currentUser.username !== " " ? currentUser.username : "",
     email: currentUser.email,
+    profilePicture: currentUser.profilePicture,
     password: "",
   });
+
+  const [image, setImage] = useState(undefined);
+
+  const [imageUploadPercentage, setImageUploadPercentage] = useState(0);
+
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (image) {
+      uploadImage(image);
+    }
+  }, [image]);
+
+  const uploadImage = async (image) => {
+    const storage = getStorage(app);
+    const fileName = new Date().getTime() + image.name;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, image);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setImageUploadPercentage(Math.round(progress));
+      },
+      (error) => {
+        setImageError(true);
+        console.log(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
+          setUserData({ ...userData, profilePicture: downloadURL })
+        );
+      }
+    );
+  };
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -74,7 +120,7 @@ const Profile = () => {
         dispatch(signInSuccess());
         setTimeout(() => {
           navigate("/");
-        }, 100);
+        }, 1);
       }
     }
   };
@@ -85,7 +131,7 @@ const Profile = () => {
       dispatch(signInSuccess());
       setTimeout(() => {
         navigate("/");
-      }, 10);
+      }, 1);
     } catch (error) {
       console.log(error);
     }
@@ -98,11 +144,35 @@ const Profile = () => {
         onSubmit={handleSubmit}
         className="flex flex-col items-center justify-center gap-6 px-8 "
       >
-        <img
-          src={currentUser.profilePicture}
-          alt=""
-          className="h24 w-24 rounded-full object-cover bg-green-300 mb-4"
+        <input
+          type="file"
+          ref={imageInputRef}
+          hidden
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files[0])}
         />
+
+        <img
+          src={userData.profilePicture}
+          alt=""
+          className="h-24 w-24 rounded-full object-cover bg-green-300 mb-4"
+          onClick={() => {
+            imageInputRef.current.click();
+          }}
+        />
+        <p>
+          {imageError ? (
+            <span className="text-red-500">Error Uploading Image</span>
+          ) : imageUploadPercentage > 0 && imageUploadPercentage < 100 ? (
+            <span className="text-slate-500">
+              {`Uploading Image... ${imageUploadPercentage} %`}{" "}
+            </span>
+          ) : imageUploadPercentage === 100 ? (
+            <span className="text-green-500">Image Uploaded Successfully</span>
+          ) : (
+            ""
+          )}
+        </p>
         {feedback.error && <p className="text-red-500">{feedback.message}</p>}
         {feedback.success && (
           <p className="text-green-500">{feedback.message}</p>
