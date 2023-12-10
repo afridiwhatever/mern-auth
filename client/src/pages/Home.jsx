@@ -1,10 +1,4 @@
-import { useSelector } from "react-redux";
-
 const Home = () => {
-  const { currentUser } = useSelector((state) => state.user);
-
-  console.log(document.cookie);
-
   return (
     <div className="flex justify-center">
       <div className="max-w-2xl py-12 px-4">
