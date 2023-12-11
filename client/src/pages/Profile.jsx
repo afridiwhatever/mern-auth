@@ -28,7 +28,6 @@ const Profile = () => {
   });
 
   const updateProfilePicture = async () => {
-    console.log("ran");
     const response = await fetch("/api/user/edit/image", {
       method: "POST",
       headers: {
@@ -39,10 +38,7 @@ const Profile = () => {
         profilePicture: userData.profilePicture,
       }),
     });
-    console.log({
-      email: userData.email,
-      profilePicture: userData.profilePicture,
-    });
+
     const data = await response.json();
     console.log(data);
     if (data.success) {
