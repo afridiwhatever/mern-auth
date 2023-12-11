@@ -80,7 +80,6 @@ export const deleteUser = async (req, res) => {
     return res.json({
       success: true,
       message: "User deleted successfully",
-      deletedUser,
     });
   } catch (error) {
     console.log(error);
