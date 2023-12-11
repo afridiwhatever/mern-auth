@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
+import path from "path";
 import cors from "cors";
 dotenv.config();
 const app = express();
@@ -18,10 +19,18 @@ mongoose
     console.log(err);
   });
 
+const __dirname = path.resolve();
+
 //middleswares
+
+app.use(express.static(path.join(__dirname, "/client/dist")));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 // routes
 app.use("/api/user", userRoutes);
